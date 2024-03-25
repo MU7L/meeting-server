@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    // TypeScript 编译目标版本
+    "target": "es6",
+    // 指定模块系统为CommonJS（适用于Node.js）
+    "module": "commonjs",
+    // 允许从JavaScript文件导入模块
+    "allowJs": true,
+    // 生成sourceMap以帮助调试
+    "sourceMap": true,
+    // 定义输出目录
+    "outDir": "./dist",
+    // 将每个.ts文件视为独立模块（避免全局声明冲突）
+    "isolatedModules": true,
+    // 启用严格的类型检查
+    "strict": true,
+    // 检查并包含 'node' 的类型声明
+    "types": [
+      "node"
+    ],
+    // 引入 tslib 库以支持 TypeScript 中的 helper 函数
+    "esModuleInterop": true,
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  // 包含要编译的源代码目录
+  "include": [
+    "src/**/*"
+  ],
+  // 排除不需要编译的文件或目录
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts",
+    "**/__tests__/*"
+  ]
+}

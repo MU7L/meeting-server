@@ -1,28 +1,37 @@
 {
-  "name": "meeting-server",
-  "version": "1.0.0",
-  "description": "meeting server",
-  "main": "app.ts",
-  "license": "MIT",
-  "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon app.ts"
-  },
-  "dependencies": {
-    "@types/express": "^4.17.21",
-    "dotenv": "^16.4.1",
-    "express": "^4.18.2",
-    "knex": "^3.1.0",
-    "livekit-server-sdk": "^1.2.7",
-    "lodash": "^4.17.21",
-    "morgan": "^1.10.0",
-    "mysql2": "^3.9.1",
-    "winston": "^3.11.0"
-  },
-  "devDependencies": {
-    "@types/lodash": "^4.14.202",
-    "@types/morgan": "^1.9.9",
-    "cross-env": "^7.0.3",
-    "nodemon": "^3.0.3",
-    "typescript": "^5.3.3"
-  }
+    "name": "meeting-server",
+    "version": "1.0.0",
+    "description": "meeting server",
+    "main": "src/app.ts",
+    "license": "MIT",
+    "scripts": {
+        "dev": "cross-env NODE_ENV=development nodemon src/app.ts"
+    },
+    "dependencies": {
+        "@prisma/client": "5.9.1",
+        "cors": "^2.8.5",
+        "express": "^4.18.2",
+        "express-jwt": "^8.4.1",
+        "express-validator": "^7.0.1",
+        "jsonwebtoken": "^9.0.2",
+        "lodash": "^4.17.21",
+        "morgan": "^1.10.0",
+        "mysql2": "^3.9.1",
+        "redis": "^4.6.13",
+        "socket.io": "^4.7.5",
+        "winston": "^3.11.0"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.17",
+        "@types/express": "^4.17.21",
+        "@types/jsonwebtoken": "^9.0.5",
+        "@types/lodash": "^4.14.202",
+        "@types/morgan": "^1.9.9",
+        "cross-env": "^7.0.3",
+        "dotenv": "^16.4.1",
+        "nodemon": "^3.0.3",
+        "prisma": "^5.9.1",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.3.3"
+    }
 }
