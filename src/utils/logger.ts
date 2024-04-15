@@ -1,5 +1,7 @@
 import winston from 'winston';
 
+import { ENV } from '../config';
+
 const levels = {
     error: 0,
     warn: 1,
@@ -9,8 +11,7 @@ const levels = {
 };
 
 const level = () => {
-    const env = process.env.NODE_ENV || 'development';
-    const isDevelopment = env === 'development';
+    const isDevelopment = ENV === 'development';
     return isDevelopment ? 'debug' : 'warn';
 };
 
@@ -27,8 +28,8 @@ winston.addColors(colors);
 const format = winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
     winston.format.printf(
-        info => `[${info.timestamp} ${info.level}]\t${info.message}`
-    )
+        info => `[${info.timestamp} ${info.level}]\t${info.message}`,
+    ),
 );
 
 const transports = [

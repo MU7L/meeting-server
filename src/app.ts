@@ -4,8 +4,9 @@ import { createServer } from 'http';
 
 import { API_PORT, ENV } from './config';
 import morganMiddleware from './middleware/morgan';
-import loadRouter from './router';
+import setupRouters from './router';
 import logger from './utils/logger';
+import setupDatabse from './utils/mongoose';
 import setupSocket from './utils/socket';
 
 logger.info(`env: ${ENV}`);
@@ -25,14 +26,14 @@ app.get('/ping', (_, res) => {
 
 /** 启动服务 */
 async function setup(app: Express) {
-    const routerMap = await loadRouter();
-    routerMap.forEach((router, key) => {
-        app.use(key, router);
-    });
+    await setupDatabse();
+    await setupRouters(app);
+
     const httpServer = createServer(app);
     setupSocket(httpServer);
     httpServer.listen(API_PORT);
-    logger.info(`server started on http://localhost:${API_PORT}`);
 }
 
-setup(app);
+setup(app)
+    .then(() => logger.info(`server started on http://localhost:${API_PORT}`))
+    .catch(err => logger.error(err));
