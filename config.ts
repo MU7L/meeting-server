@@ -10,9 +10,9 @@ export const API_PORT = Number(process.env.API_PORT) || 3000;
 export const WEB_PORT = Number(process.env.WEB_HOST) || 5173;
 
 // 数据库
-export const DB_URL =
-    `mongodb://localhost:${process.env.DB_PORT}/${process.env.DB_DATABASE}` ||
-    'mongodb://localhost:27017/test';
+const DB_PORT = Number(process.env.DB_PORT) || 27017;
+const DB_DATABASE = process.env.DB_DATABASE || 'meeting';
+export const DB_URL = `mongodb://localhost:${DB_PORT}/${DB_DATABASE}`;
 
 // jwt
 export const JWT_SECRET = process.env.JWT_SECRET || '123456';

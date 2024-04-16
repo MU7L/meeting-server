@@ -1,5 +1,3 @@
-// api/users
-
 import { Router } from 'express';
 import { body, matchedData } from 'express-validator';
 

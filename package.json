@@ -5,7 +5,7 @@
     "main": "src/app.ts",
     "license": "MIT",
     "scripts": {
-        "dev": "cross-env NODE_ENV=development nodemon src/app.ts"
+        "dev": "cross-env NODE_ENV=development nodemon app.ts"
     },
     "dependencies": {
         "bcrypt": "^5.1.1",
@@ -17,6 +17,7 @@
         "lodash": "^4.17.21",
         "mongoose": "8.2",
         "morgan": "^1.10.0",
+        "multer": "1.4.5-lts.1",
         "socket.io": "^4.7.5",
         "winston": "^3.11.0"
     },
@@ -28,6 +29,7 @@
         "@types/jsonwebtoken": "^9.0.5",
         "@types/lodash": "^4.14.202",
         "@types/morgan": "^1.9.9",
+        "@types/multer": "^1.4.11",
         "cross-env": "^7.0.3",
         "dotenv": "^16.4.1",
         "eslint": "^8.56.0",
