@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 
 import { BCRYPT_SALT, JWT_SECRET } from '../config';
 import UserModel from '../models/user';
+import logger from '../utils/logger';
 
 const userService = {
     /**
@@ -31,6 +32,7 @@ const userService = {
         const token = jwt.sign(userDoc.id, JWT_SECRET, {
             expiresIn: '1d',
         });
+        logger.info(`用户 ${userDoc.name} 登录`);
         return { id: userDoc.id, token };
     },
 
@@ -46,8 +48,12 @@ const userService = {
         email: string,
         password: string,
     ): Promise<{ id: string; token: string }> {
-        const userDoc = await UserModel.findOne({ email });
-        if (userDoc) throw new Error('用户已注册');
+        let userDoc = await UserModel.findOne({ email });
+        if (userDoc) {
+            throw new Error('用户已注册', {
+                cause: 409,
+            });
+        }
 
         const encryptedPassword = await new Promise((resolve, reject) => {
             bcrypt.genSalt(BCRYPT_SALT, (err, salt) => {
@@ -58,12 +64,12 @@ const userService = {
                 });
             });
         });
-        const user = new UserModel({ name, email, encryptedPassword });
-        await user.save();
-        const token = jwt.sign(user.id, JWT_SECRET, {
+        userDoc = new UserModel({ name, email, encryptedPassword });
+        await userDoc.save();
+        const token = jwt.sign({ id: userDoc.id }, JWT_SECRET, {
             expiresIn: '1d',
         });
-        return { id: user.id, token };
+        return { id: userDoc.id, token };
     },
 };
 

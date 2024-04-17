@@ -12,7 +12,7 @@ export const WEB_PORT = Number(process.env.WEB_HOST) || 5173;
 // 数据库
 const DB_PORT = Number(process.env.DB_PORT) || 27017;
 const DB_DATABASE = process.env.DB_DATABASE || 'meeting';
-export const DB_URL = `mongodb://localhost:${DB_PORT}/${DB_DATABASE}`;
+export const DB_URL = `mongodb://127.0.0.1:${DB_PORT}/${DB_DATABASE}`;
 
 // jwt
 export const JWT_SECRET = process.env.JWT_SECRET || '123456';

@@ -10,7 +10,7 @@ const router = Router();
 
 // 账号密码登录
 router.post(
-    '/',
+    '/login',
     body('email')
         .notEmpty()
         .withMessage('邮箱不能为空')
