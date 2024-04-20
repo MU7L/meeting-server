@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { body, matchedData } from 'express-validator';
+import { body, matchedData, param } from 'express-validator';
 
-import validationErrorMiddleware from '../middleware/validator';
+import jwtMiddleware from '../middleware/jwt';
+import validationHandler from '../middleware/validator';
 import userService from '../service/user';
 
 const router = Router();
@@ -25,7 +26,7 @@ router.post(
             }
             return true;
         }),
-    validationErrorMiddleware,
+    validationHandler,
     async (req, res) => {
         const { name, email, password } = matchedData(req);
         try {
@@ -35,17 +36,31 @@ router.post(
                 data,
             });
         } catch (err) {
-            // TODO: 错误处理复用
-            let errorCode = 500;
-            let errorMsg = '服务器错误';
-            if (err instanceof Error) {
-                errorCode = err.cause as number;
-                errorMsg = err.message;
-            }
-            res.status(errorCode).send({
-                success: false,
-                message: errorMsg,
+            throw err;
+        }
+    },
+);
+
+// 获取用户信息
+router.get(
+    '/:id',
+    jwtMiddleware,
+    param('id')
+        .isEmpty()
+        .withMessage('用户ID不能为空')
+        .isMongoId()
+        .withMessage('用户ID格式错误'),
+    validationHandler,
+    async (req, res) => {
+        const { id } = matchedData(req);
+        try {
+            const data = await userService.getUser(id);
+            res.status(200).send({
+                success: true,
+                data,
             });
+        } catch (err) {
+            throw err;
         }
     },
 );

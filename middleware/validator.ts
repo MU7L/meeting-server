@@ -1,17 +1,15 @@
 import { RequestHandler } from 'express';
 import { validationResult } from 'express-validator';
 
-const validationErrorMiddleware: RequestHandler = (req, res, next) => {
+const validationHandler: RequestHandler = (req, res, next) => {
     const result = validationResult(req);
     if (!result.isEmpty()) {
-        return res.status(400).send({
-            message: result
-                .array()
-                .map(item => item.msg)
-                .join('\n'),
-        });
-    }
-    next();
+        const errorMsg = result
+            .array()
+            .map(item => item.msg)
+            .join('\n');
+        throw new Error(errorMsg, { cause: 400 });
+    } else next();
 };
 
-export default validationErrorMiddleware;
+export default validationHandler;

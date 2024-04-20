@@ -1,10 +1,13 @@
 import { model, Schema } from 'mongoose';
 
-const teamSchema = new Schema({
+import { ITeam } from './types';
+
+const teamSchema = new Schema<ITeam>({
     name: {
         type: String,
         required: true,
     },
+    description: String,
     mentor: {
         type: Schema.Types.ObjectId,
         ref: 'User',
@@ -18,6 +21,6 @@ const teamSchema = new Schema({
     ],
 });
 
-const TeamModel = model('Team', teamSchema);
+const TeamModel = model<ITeam>('Team', teamSchema);
 
 export default TeamModel;

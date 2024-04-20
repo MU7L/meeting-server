@@ -71,6 +71,23 @@ const userService = {
         });
         return { id: userDoc.id, token };
     },
+
+    /**
+     * 获取用户信息
+     * @param id 用户id
+     * @returns {Promise<{ id: string; name: string; email: string }>} 用户信息
+     */
+    async getUser(
+        id: string,
+    ): Promise<{ id: string; name: string; email: string }> {
+        const userDoc = await UserModel.findById(id).select([
+            'name',
+            'email',
+            'avatar',
+        ]);
+        if (!userDoc) throw new Error('用户不存在', { cause: 404 });
+        return { ...userDoc, id };
+    },
 };
 
 export default userService;
