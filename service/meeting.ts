@@ -1,6 +1,4 @@
-import MeetingModel from '../models/meeting';
-import { IMeeting } from '../models/types';
-import UserModel from '../models/user';
+import { UserModel } from '../models';
 
 const meetingService = {
     /**
@@ -9,14 +7,11 @@ const meetingService = {
      * @param {Date} end 结束日期
      */
     async getByRange(userId: string, start: Date, end: Date) {
-        const userDoc = await UserModel.findById(userId, 'meetings').populate<{
-            meetings: IMeeting[];
-        }>({
+        const userDoc = await UserModel.findById(userId, 'meetings').populate({
             path: 'meetings',
             match: {
                 start: { $gte: start, $lte: end },
             },
-            model: MeetingModel,
             options: {
                 sort: { start: 1 },
             },

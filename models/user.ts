@@ -1,36 +1,24 @@
-import { model, Schema, Types } from 'mongoose';
+import { prop, Ref } from '@typegoose/typegoose';
 
-import { IUser } from './types';
+import Meeting from './meeting';
+import Team from './team';
 
-const userSchema = new Schema<IUser>({
-    name: {
-        type: String,
-        trim: true,
-        required: true,
-    },
-    email: {
-        type: String,
-        required: true,
-    },
-    encryptedPassword: {
-        type: String,
-        required: true,
-    },
-    avatar: String,
-    teams: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'Team',
-        },
-    ],
-    meetings: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'Meeting',
-        },
-    ],
-});
+export default class User {
+    @prop({ required: true })
+    public name!: string;
 
-const UserModel = model<IUser>('User', userSchema);
+    @prop({ required: true, index: true, unique: true })
+    public email!: string;
 
-export default UserModel;
+    @prop({ required: true })
+    public encryptedPassword!: string;
+
+    @prop()
+    public avatar?: string;
+
+    @prop({ required: true, ref: () => Team })
+    public teams!: Ref<Team>[];
+
+    @prop({ required: true, ref: () => Meeting })
+    public meetings!: Ref<Meeting>[];
+}

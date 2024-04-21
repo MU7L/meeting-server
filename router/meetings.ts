@@ -12,21 +12,6 @@ router.post('/', jwtMiddleware, async (req: JWTRequest, res) => {
     if (!req.auth) throw new Error('用户无权限', { cause: 401 });
     const id = req.auth.id;
     const { start, end, teams, attendees } = matchedData(req);
-    try {
-        const data = await meetingService.create(
-            id,
-            start,
-            end,
-            teams,
-            attendees,
-        );
-        res.send({
-            success: true,
-            data,
-        });
-    } catch (err) {
-        throw err;
-    }
 });
 
 // 取消

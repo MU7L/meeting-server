@@ -27,10 +27,7 @@ router.post(
                 data,
             });
         } catch (error) {
-            res.status(400).send({
-                success: false,
-                message: error,
-            });
+            throw error;
         }
     },
 );

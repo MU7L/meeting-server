@@ -1,50 +1,28 @@
-import { model, Schema } from 'mongoose';
+import { prop, Ref } from '@typegoose/typegoose';
 
-import { IMeeting } from './types';
+import Team from './team';
+import User from './user';
 
-const meetingSchema = new Schema<IMeeting>({
-    title: {
-        type: String,
-        required: true,
-    },
-    description: String,
-    start: {
-        type: Date,
-        default: Date.now,
-        required: true,
-    },
-    end: {
-        type: Date,
-        default: Date.now,
-        required: true,
-    },
-    sponsor: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-    },
-    teams: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'Team',
-            required: true,
-        },
-    ],
-    attendees: [
-        {
-            user: {
-                type: Schema.Types.ObjectId,
-                ref: 'User',
-            },
-            response: {
-                type: String,
-                enum: ['pending', 'accepted', 'rejected'],
-                default: 'pending',
-            },
-        },
-    ],
-});
+class Attendee {
+    @prop({ required: true, ref: () => User })
+    public user!: Ref<User>;
+    @prop({ required: true, enum: ['pending', 'accepted', 'rejected'] })
+    public response!: 'pending' | 'accepted' | 'rejected';
+}
 
-const MeetingModel = model<IMeeting>('Team', meetingSchema);
-
-export default MeetingModel;
+export default class Meeting {
+    @prop({ required: true })
+    public title!: string;
+    @prop()
+    public description?: string;
+    @prop({ required: true })
+    public start!: Date;
+    @prop({ required: true })
+    public end!: Date;
+    @prop({ required: true, ref: () => User })
+    public sponsor!: Ref<User>;
+    @prop({ required: true, ref: () => Team })
+    public teams!: Ref<Team>[];
+    @prop({ required: true, _id: false, type: () => [Attendee] })
+    public attendees!: Attendee[];
+}

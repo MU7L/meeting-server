@@ -16,11 +16,14 @@
         "strict": true,
         // 检查并包含 'node' 的类型声明
         "types": ["node"],
+        "typeRoots": ["node_modules/@types"],
         // 引入 tslib 库以支持 TypeScript 中的 helper 函数
         "esModuleInterop": true,
         "lib": ["esnext", "dom"],
         "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
     },
     // 包含要编译的源代码目录
     "include": [

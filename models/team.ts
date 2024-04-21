@@ -1,26 +1,14 @@
-import { model, Schema } from 'mongoose';
+import { prop, Ref } from '@typegoose/typegoose';
 
-import { ITeam } from './types';
+import User from './user';
 
-const teamSchema = new Schema<ITeam>({
-    name: {
-        type: String,
-        required: true,
-    },
-    description: String,
-    mentor: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-    },
-    members: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
-        },
-    ],
-});
-
-const TeamModel = model<ITeam>('Team', teamSchema);
-
-export default TeamModel;
+export default class Team {
+    @prop({ required: true })
+    public name!: string;
+    @prop()
+    public description?: string;
+    @prop({ required: true, ref: () => User })
+    public mentor!: Ref<User>;
+    @prop({ required: true, ref: () => User })
+    public members!: Ref<User>[];
+}
