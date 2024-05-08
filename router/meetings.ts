@@ -1,18 +1,46 @@
 import { Router } from 'express';
 import { Request as JWTRequest } from 'express-jwt';
-import { matchedData, query } from 'express-validator';
+import { body, matchedData, query } from 'express-validator';
 
 import jwtMiddleware from '../middleware/jwt';
 import meetingService from '../service/meeting';
+import CustomError from '../utils/error';
 
 const router = Router();
 
-// 预定
-router.post('/', jwtMiddleware, async (req: JWTRequest, res) => {
-    if (!req.auth) throw new Error('用户无权限', { cause: 401 });
-    const id = req.auth.id;
-    const { start, end, teams, attendees } = matchedData(req);
-});
+// 新建
+router.post(
+    '/',
+    jwtMiddleware,
+    body('title').optional(),
+    body('description').optional(),
+    body('start').optional(),
+    body('end').optional(),
+    body('teams').optional(),
+    jwtMiddleware,
+    async (req: JWTRequest, res) => {
+        if (!req.auth) throw new CustomError('用户无权限', 401);
+        const sponsorId = req.auth.id;
+        const { title, description, start, end, teams } = matchedData(req);
+        try {
+            const data = await meetingService.create(sponsorId, {
+                title,
+                description,
+                start,
+                end,
+                teamIdList: teams,
+            });
+            res.send({
+                success: true,
+                data: {
+                    mid: data,
+                },
+            });
+        } catch (err) {
+            throw err;
+        }
+    },
+);
 
 // 取消
 

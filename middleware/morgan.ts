@@ -11,9 +11,9 @@ const skip = () => {
     return env !== 'development';
 };
 
-const morganMiddleware = morgan(
+const morganHandler = morgan(
     ':method :url :status :res[content-length] - :response-time ms',
-    { stream, skip }
+    { stream, skip },
 );
 
-export default morganMiddleware;
+export default morganHandler;

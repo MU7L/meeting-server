@@ -3,9 +3,9 @@ import express, { Express } from 'express';
 import { createServer } from 'http';
 import path from 'path';
 
-import { API_PORT, ENV } from './config';
+import { API_HOST, API_PORT, ENV } from './config';
 import errorHandler from './middleware/error';
-import morganMiddleware from './middleware/morgan';
+import morganHandler from './middleware/morgan';
 import setupRouters from './router';
 import logger from './utils/logger';
 import setupDatabse from './utils/mongoose';
@@ -17,13 +17,10 @@ const app = express();
 
 /** 启动服务 */
 async function setup(app: Express) {
-    // 静态资源
     app.use(express.static(path.join(__dirname, 'public')));
-
-    app.use(morganMiddleware);
+    app.use(morganHandler);
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
-
     app.use(cors());
 
     await setupDatabse();
@@ -37,5 +34,5 @@ async function setup(app: Express) {
 }
 
 setup(app)
-    .then(() => logger.info(`server started on http://localhost:${API_PORT}`))
+    .then(() => logger.info(`server started on http://${API_HOST}:${API_PORT}`))
     .catch(err => logger.error(err));

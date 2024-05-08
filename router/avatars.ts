@@ -1,12 +1,11 @@
 import { Router } from 'express';
 
-import { avatarUpload } from '../middleware/multer';
-import logger from '../utils/logger';
+import { avatarHandler } from '../middleware/multer';
 
 const router = Router();
 
 // 注册
-router.post('/avatar', avatarUpload.single('avatar'), (req, res) => {
+router.post('/', avatarHandler.single('avatar'), (req, res) => {
     if (!req.file) {
         res.status(400).send({
             success: false,
@@ -14,11 +13,10 @@ router.post('/avatar', avatarUpload.single('avatar'), (req, res) => {
         });
         return;
     }
-    logger.info(`upload avatar: ${req.file.filename}`);
     res.status(201).send({
         success: true,
         data: {
-            avatar: req.file.filename,
+            avatar: `/uploads/${req.file.filename}`,
         },
     });
 });

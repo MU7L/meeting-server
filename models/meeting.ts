@@ -1,28 +1,58 @@
-import { prop, Ref } from '@typegoose/typegoose';
+import { Types } from 'mongoose';
 
-import Team from './team';
-import User from './user';
+import { modelOptions, prop, PropType, Ref } from '@typegoose/typegoose';
+
+import User from './User';
+
+export enum AttendeeResponse {
+    PENDING = 'pending',
+    ACCEPTED = 'accepted',
+    REJECTED = 'rejected',
+}
 
 class Attendee {
     @prop({ required: true, ref: () => User })
-    public user!: Ref<User>;
-    @prop({ required: true, enum: ['pending', 'accepted', 'rejected'] })
-    public response!: 'pending' | 'accepted' | 'rejected';
+    user!: Ref<User>;
+
+    @prop({
+        required: true,
+        enum: AttendeeResponse,
+        default: AttendeeResponse.PENDING,
+    })
+    response!: AttendeeResponse;
 }
 
+@modelOptions({ schemaOptions: { timestamps: true } })
 export default class Meeting {
+    @prop({ required: true, type: String })
+    title!: string;
+
+    @prop({ type: String })
+    description?: string;
+
     @prop({ required: true })
-    public title!: string;
-    @prop()
-    public description?: string;
+    start!: Date;
+
     @prop({ required: true })
-    public start!: Date;
-    @prop({ required: true })
-    public end!: Date;
+    end!: Date;
+
     @prop({ required: true, ref: () => User })
-    public sponsor!: Ref<User>;
-    @prop({ required: true, ref: () => Team })
-    public teams!: Ref<Team>[];
-    @prop({ required: true, _id: false, type: () => [Attendee] })
-    public attendees!: Attendee[];
+    sponsor!: Ref<User>;
+
+    @prop(
+        { required: true, _id: false, type: () => [Attendee], default: [] },
+        PropType.ARRAY,
+    )
+    attendees!: Types.Array<Attendee>;
+
+    get status() {
+        const now = new Date();
+        if (now < this.start) {
+            return 'pending';
+        } else if (now > this.end) {
+            return 'finished';
+        } else {
+            return 'ongoing';
+        }
+    }
 }

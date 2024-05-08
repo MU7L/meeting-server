@@ -1,5 +1,6 @@
 import { RequestHandler } from 'express';
 import { validationResult } from 'express-validator';
+import CustomError from '../utils/error';
 
 const validationHandler: RequestHandler = (req, res, next) => {
     const result = validationResult(req);
@@ -8,8 +9,10 @@ const validationHandler: RequestHandler = (req, res, next) => {
             .array()
             .map(item => item.msg)
             .join('\n');
-        throw new Error(errorMsg, { cause: 400 });
-    } else next();
+        next(new CustomError(errorMsg, 400));
+        return;
+    }
+    next();
 };
 
 export default validationHandler;

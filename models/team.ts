@@ -1,14 +1,41 @@
-import { prop, Ref } from '@typegoose/typegoose';
+import { Types } from 'mongoose';
 
-import User from './user';
+import { modelOptions, prop, PropType, Ref } from '@typegoose/typegoose';
+
+import User from './User';
+
+export enum MemberType {
+    MENTOR = 'mentor',
+    MEMBER = 'member',
+    NEW = 'new',
+}
+
+@modelOptions({
+    schemaOptions: {
+        timestamps: true,
+    },
+})
+class Member {
+    @prop({ required: true, ref: () => User })
+    user!: Ref<User>;
+
+    @prop({ required: true, enum: MemberType, default: MemberType.NEW })
+    status!: MemberType;
+}
 
 export default class Team {
-    @prop({ required: true })
-    public name!: string;
-    @prop()
-    public description?: string;
+    @prop({ required: true, type: String })
+    name!: string;
+
+    @prop({ type: String })
+    description?: string;
+
     @prop({ required: true, ref: () => User })
-    public mentor!: Ref<User>;
-    @prop({ required: true, ref: () => User })
-    public members!: Ref<User>[];
+    mentor!: Ref<User>;
+
+    @prop(
+        { required: true, _id: false, type: () => [Member], default: [] },
+        PropType.ARRAY,
+    )
+    members!: Types.Array<Member>;
 }

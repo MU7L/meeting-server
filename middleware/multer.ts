@@ -1,9 +1,11 @@
 import multer from 'multer';
 import path from 'path';
 
+const uploadPath = path.join(path.dirname(__dirname), 'public', 'uploads');
+
 const avatarStorage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.join(path.dirname(__dirname), 'public', 'uploads'));
+        cb(null, uploadPath);
     },
     filename: function (req, file, cb) {
         const ext = path.extname(file.originalname);
@@ -11,6 +13,6 @@ const avatarStorage = multer.diskStorage({
     },
 });
 
-export const avatarUpload = multer({
+export const avatarHandler = multer({
     storage: avatarStorage,
 });

@@ -6,6 +6,7 @@ dotenv.config();
 export const ENV = process.env.NODE_ENV || 'development';
 
 // 服务端口
+export const API_HOST = process.env.API_HOST || 'localhost';
 export const API_PORT = Number(process.env.API_PORT) || 3000;
 export const WEB_PORT = Number(process.env.WEB_HOST) || 5173;
 

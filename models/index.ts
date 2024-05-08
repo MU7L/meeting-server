@@ -1,8 +1,8 @@
 import { getModelForClass } from '@typegoose/typegoose';
 
-import Meeting from './meeting';
-import Team from './team';
-import User from './user';
+import Meeting from './Meeting';
+import Team from './Team';
+import User from './User';
 
 export const UserModel = getModelForClass(User);
 export const MeetingModel = getModelForClass(Meeting);
