@@ -87,12 +87,17 @@ const teamService = {
         const teamDoc = await TeamModel.findByIdAndUpdate(
             tid,
             {
-                $set: { 'members.$.role': MemberType.MEMBER },
+                $set: {
+                    'members.$[member].status': MemberType.MEMBER,
+                },
             },
-            { new: true },
+            {
+                arrayFilters: [{ 'member.user': uid }],
+            },
         );
-        if (!teamDoc) throw new Error('课题组不存在', { cause: 404 });
+        if (!teamDoc) throw new CustomError('课题组不存在', 404);
         userDoc.teams.push(teamDoc.id);
+        await userDoc.save();
         await teamDoc.save();
     },
 };

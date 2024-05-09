@@ -22,7 +22,13 @@ class Attendee {
     response!: AttendeeResponse;
 }
 
-@modelOptions({ schemaOptions: { timestamps: true } })
+@modelOptions({
+    schemaOptions: {
+        timestamps: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true },
+    },
+})
 export default class Meeting {
     @prop({ required: true, type: String })
     title!: string;

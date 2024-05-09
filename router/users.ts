@@ -135,25 +135,25 @@ router.get(
     },
 );
 
-// [ ] 获取一个月内的会议
+// TODO: 获取一个月内的会议
 router.get(
     '/:uid/meetings',
     jwtHandler,
     param('uid').isMongoId().withMessage('用户ID格式错误'),
-    query('from').isDate().withMessage('开始时间格式错误'),
-    query('to').isDate().withMessage('结束时间格式错误'),
+    query('from').isISO8601().withMessage('开始时间格式错误').toDate(),
+    query('to').isISO8601().withMessage('结束时间格式错误').toDate(),
     validationHandler,
-    async (req, res) => {
+    (req, res, next) => {
         const { uid, from, to } = matchedData(req);
-        try {
-            const data = await userService.getMeetings({ id: uid, from, to });
-            res.status(200).send({
-                success: true,
-                data,
-            });
-        } catch (err) {
-            throw err;
-        }
+        userService
+            .getMeetings(uid, from, to)
+            .then(data => {
+                res.send({
+                    success: true,
+                    data,
+                });
+            })
+            .catch(next);
     },
 );
 

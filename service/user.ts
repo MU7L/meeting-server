@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import { BCRYPT_SALT, JWT_SECRET } from '../config';
-import { TeamModel, UserModel } from '../models';
+import { MeetingModel, TeamModel, UserModel } from '../models';
 import logger from '../utils/logger';
 import { isDocument } from '@typegoose/typegoose';
 import CustomError from '../utils/error';
@@ -122,19 +122,16 @@ const userService = {
     },
 
     /** 获取一个月内的会议 */
-    async getMeetings({ id, from, to }: { id: string; from: Date; to: Date }) {
-        const userDoc = await UserModel.findById(id)
-            .populate({
-                path: 'meetings',
-                match: {
-                    start: { $gte: from, $lte: to },
-                },
-                options: { sort: { start: 1 } },
-                populate: ['sponsor', 'teams', 'attendees'],
-            })
-            .exec();
+    async getMeetings(id: string, from: Date, to: Date) {
+        const userDoc = await UserModel.findById(id).select('meetings');
         if (!userDoc) throw new CustomError('用户不存在', 404);
-        return userDoc.meetings;
+        const meetingDocList = await MeetingModel.find({
+            _id: { $in: userDoc.meetings },
+            start: { $gte: from, $lte: to },
+        })
+            .select('title start end')
+            .sort('start');
+        return meetingDocList;
     },
 };
 

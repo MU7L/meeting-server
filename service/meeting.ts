@@ -4,32 +4,16 @@ import { MemberType } from '../models/Team';
 import CustomError from '../utils/error';
 
 const meetingService = {
-    /**
-     * 根据范围查找会议
-     * @param {Date} start 起始日期
-     * @param {Date} end 结束日期
-     */
-    async getByRange(userId: string, start: Date, end: Date) {
-        const userDoc = await UserModel.findById(userId, 'meetings').populate({
-            path: 'meetings',
-            match: {
-                start: { $gte: start, $lte: end },
-            },
-            options: {
-                sort: { start: 1 },
-            },
-            populate: ['sponsor', 'teams', 'attendees'],
-        });
-        if (!userDoc) {
-            throw new Error('用户不存在', { cause: 404 });
-        }
-        return userDoc.meetings;
-    },
-
     /** 创建会议 */
     async create(
         sponsorId: string,
-        info: Partial<{
+        {
+            title,
+            description,
+            start,
+            end,
+            teamIdList,
+        }: Partial<{
             title: string;
             description?: string;
             start: Date;
@@ -38,44 +22,84 @@ const meetingService = {
         }>,
     ) {
         // 查找发起人
-        const sponsorDoc = await UserModel.findById(sponsorId, 'meetings');
+        const sponsorDoc = await UserModel.findById(sponsorId, 'name meetings');
         if (!sponsorDoc) {
             throw new CustomError('用户不存在', 404);
         }
-        // 查找与会人员
+
+        // 获取与会人员有问题
         const attendeeIdSet = new Set([sponsorId]);
         const teamDocList = await TeamModel.find({
-            _id: { $in: info.teamIdList },
-        })
-            .select('members')
-            .populate({
-                path: 'members',
-                match: { role: MemberType.MEMBER },
-                populate: 'user',
-            });
+            _id: { $in: teamIdList },
+        }).select('members');
         teamDocList.forEach(teamDoc => {
             teamDoc.members.forEach(member => {
-                attendeeIdSet.add(String(member.user._id));
+                if (member.status === MemberType.MEMBER) {
+                    attendeeIdSet.add(String(member.user._id));
+                }
             });
         });
         const attendeeIdList = [...attendeeIdSet];
+
         // 创建会议
+        const now = Date.now();
         const meetingDoc = await MeetingModel.create({
-            ...info,
+            title: title ?? `${sponsorDoc.name} 创建的会议`,
+            description: description ?? '',
+            start: start ?? new Date(now),
+            end: end ?? new Date(now + 3600 * 1000),
+            sponsor: sponsorId,
             attendees: attendeeIdList.map(attendeeId => ({
                 user: attendeeId,
-                type:
+                response:
                     attendeeId === sponsorId
                         ? AttendeeResponse.ACCEPTED
                         : AttendeeResponse.PENDING,
             })),
         });
+
         // 通知用户
         await UserModel.updateMany(
             { _id: { $in: attendeeIdList } },
             { $push: { meetings: meetingDoc._id } },
         );
-        return meetingDoc.id;
+        return { mid: meetingDoc._id };
+    },
+
+    /** 查找会议详情 */
+    async getMeeting(mid: string, uid: string) {
+        const meetingDoc = await MeetingModel.findById(mid)
+            .populate('sponsor', 'name avatar email')
+            .populate({
+                path: 'attendees',
+                populate: {
+                    path: 'user',
+                    select: 'name avatar email',
+                },
+            })
+            .select('-__v');
+        if (!meetingDoc) {
+            throw new CustomError('会议不存在', 404);
+        }
+        return meetingDoc;
+    },
+
+    /** 提交会议响应 */
+    async updateResponse(mid: string, uid: string, response: AttendeeResponse) {
+        const meetingDoc = await MeetingModel.findByIdAndUpdate(
+            mid,
+            {
+                $set: {
+                    'attendees.$[attendee].response': response,
+                },
+            },
+            {
+                arrayFilters: [{ 'attendee.user': uid }],
+            },
+        );
+        if (!meetingDoc) {
+            throw new CustomError('会议不存在', 404);
+        }
     },
 };
 
