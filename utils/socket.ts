@@ -5,17 +5,17 @@ import { WEB_PORT } from '../config';
 import logger from './logger';
 
 interface ServerToClientEvents {
-    join: (id: string) => void;
-    offer: (sdp: RTCSessionDescriptionInit, id: string) => void;
-    answer: (sdp: RTCSessionDescriptionInit, id: string) => void;
-    candidate: (candidate: RTCIceCandidate, id: string) => void;
+    join: (uid: string) => void;
+    offer: (uid: string, sdp: RTCSessionDescriptionInit) => void;
+    answer: (uid: string, sdp: RTCSessionDescriptionInit) => void;
+    candidate: (uid: string, candidate: RTCIceCandidate) => void;
 }
 
 interface ClientToServerEvents {
-    join: (room: string, callback: (idList: string[]) => void) => void;
-    offer: (sdp: RTCSessionDescriptionInit, id: string) => void;
-    answer: (sdp: RTCSessionDescriptionInit, id: string) => void;
-    candidate: (candidate: RTCIceCandidate, id: string) => void;
+    join: (mid: string, callback: (idList: string[]) => void) => void;
+    offer: (uid: string, sdp: RTCSessionDescriptionInit) => void;
+    answer: (uid: string, sdp: RTCSessionDescriptionInit) => void;
+    candidate: (uid: string, candidate: RTCIceCandidate) => void;
 }
 
 interface InterServerEvents {}
@@ -82,27 +82,27 @@ function setupSocket(httpServer: HttpServer) {
         });
 
         // 转发offer
-        socket.on('offer', (sdp, id) => {
+        socket.on('offer', (id, sdp) => {
             const targetSid = idMapSid.get(id);
             const sourceId = sidMapId.get(socket.id);
             if (!targetSid || !sourceId) return;
-            io.to(targetSid).emit('offer', sdp, sourceId);
+            io.to(targetSid).emit('offer', sourceId, sdp);
         });
 
         // 转发answer
-        socket.on('answer', (sdp, id) => {
+        socket.on('answer', (id, sdp) => {
             const targetSid = idMapSid.get(id);
             const sourceId = sidMapId.get(socket.id);
             if (!targetSid || !sourceId) return;
-            io.to(targetSid).emit('answer', sdp, sourceId);
+            io.to(targetSid).emit('answer', sourceId, sdp);
         });
 
         // 转发candidate
-        socket.on('candidate', (candidate, id) => {
+        socket.on('candidate', (id, candidate) => {
             const targetSid = idMapSid.get(id);
             const sourceId = sidMapId.get(socket.id);
             if (!targetSid || !sourceId) return;
-            io.to(targetSid).emit('candidate', candidate, sourceId);
+            io.to(targetSid).emit('candidate', sourceId, candidate);
         });
 
         socket.on('disconnect', () => {

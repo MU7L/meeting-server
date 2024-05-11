@@ -34,7 +34,7 @@ const meetingService = {
         }).select('members');
         teamDocList.forEach(teamDoc => {
             teamDoc.members.forEach(member => {
-                if (member.status === MemberType.MEMBER) {
+                if (member.type === MemberType.MEMBER) {
                     attendeeIdSet.add(String(member.user._id));
                 }
             });

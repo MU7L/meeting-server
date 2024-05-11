@@ -20,7 +20,7 @@ class Member {
     user!: Ref<User>;
 
     @prop({ required: true, enum: MemberType, default: MemberType.NEW })
-    status!: MemberType;
+    type!: MemberType;
 }
 
 export default class Team {
