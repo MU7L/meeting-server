@@ -27,18 +27,20 @@ const meetingService = {
             throw new CustomError('用户不存在', 404);
         }
 
-        // 获取与会人员有问题
+        // 获取与会人员
         const attendeeIdSet = new Set([sponsorId]);
-        const teamDocList = await TeamModel.find({
-            _id: { $in: teamIdList },
-        }).select('members');
-        teamDocList.forEach(teamDoc => {
-            teamDoc.members.forEach(member => {
-                if (member.type === MemberType.MEMBER) {
-                    attendeeIdSet.add(String(member.user._id));
-                }
+        if (teamIdList && teamIdList.length > 0) {
+            const teamDocList = await TeamModel.find({
+                _id: { $in: teamIdList },
+            }).select('members');
+            teamDocList.forEach(teamDoc => {
+                teamDoc.members.forEach(member => {
+                    if (member.type === MemberType.MEMBER) {
+                        attendeeIdSet.add(String(member.user._id));
+                    }
+                });
             });
-        });
+        }
         const attendeeIdList = [...attendeeIdSet];
 
         // 创建会议

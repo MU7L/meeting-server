@@ -3,12 +3,15 @@ import { Server as SocketServer } from 'socket.io';
 
 import { WEB_PORT } from '../config';
 import logger from './logger';
+import userService from '../service/user';
 
 interface ServerToClientEvents {
     join: (uid: string) => void;
     offer: (uid: string, sdp: RTCSessionDescriptionInit) => void;
     answer: (uid: string, sdp: RTCSessionDescriptionInit) => void;
     candidate: (uid: string, candidate: RTCIceCandidate) => void;
+    removeStream: (uid: string, sid: string) => void;
+    leave: (uid: string) => void;
 }
 
 interface ClientToServerEvents {
@@ -16,6 +19,7 @@ interface ClientToServerEvents {
     offer: (uid: string, sdp: RTCSessionDescriptionInit) => void;
     answer: (uid: string, sdp: RTCSessionDescriptionInit) => void;
     candidate: (uid: string, candidate: RTCIceCandidate) => void;
+    removeStream: (uid: string, sid: string) => void;
 }
 
 interface InterServerEvents {}
@@ -40,13 +44,9 @@ function setupSocket(httpServer: HttpServer) {
     });
 
     // log
-    io.of('/')
-        .adapter.on('create-room', room => {
-            logger.debug(`room ${room} created`);
-        })
-        .on('join-room', (room, id) => {
-            logger.debug(`Socket ${id} joined room ${room}`);
-        });
+    io.of('/').adapter.on('join-room', (room, id) => {
+        logger.debug(`Socket ${id} joined room ${room}`);
+    });
 
     // 鉴权
     io.use((socket, next) => {
@@ -60,25 +60,25 @@ function setupSocket(httpServer: HttpServer) {
     });
 
     io.on('connection', async socket => {
+        let mid: string;
         logger.info(`Socket ${socket.id} connected`);
 
         // 加入房间
-        socket.on('join', (room, cb) => {
+        socket.on('join', async (room, cb) => {
             const id = sidMapId.get(socket.id);
             if (!id) return;
             io.to(room).emit('join', id);
             socket.join(room);
-            io.in(room)
-                .fetchSockets()
-                .then(sockets => {
-                    const idList = sockets
-                        .filter(curr => curr.id !== socket.id)
-                        .reduce<string[]>((prev, curr) => {
-                            const id = sidMapId.get(curr.id);
-                            return id ? [...prev, id] : prev;
-                        }, []);
-                    cb(idList);
-                });
+            mid = room;
+            await userService.recordAttendance(mid, id);
+            const sockets = await io.in(room).fetchSockets();
+            const idList = sockets
+                .filter(curr => curr.id !== socket.id)
+                .reduce<string[]>((prev, curr) => {
+                    const id = sidMapId.get(curr.id);
+                    return id ? [...prev, id] : prev;
+                }, []);
+            cb(idList);
         });
 
         // 转发offer
@@ -105,12 +105,22 @@ function setupSocket(httpServer: HttpServer) {
             io.to(targetSid).emit('candidate', sourceId, candidate);
         });
 
+        // 关闭流
+        socket.on('removeStream', (uid, sid) => {
+            if (mid) {
+                io.to(mid).emit('removeStream', uid, sid);
+            }
+        });
+
         socket.on('disconnect', () => {
             logger.info(`Socket ${socket.id} disconnected`);
             const id = sidMapId.get(socket.id);
             if (!id) return;
             idMapSid.delete(id);
             sidMapId.delete(socket.id);
+            if (mid) {
+                io.to(mid).emit('leave', id);
+            }
         });
     });
 }

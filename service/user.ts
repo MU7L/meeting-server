@@ -133,6 +133,18 @@ const userService = {
             .sort('start');
         return meetingDocList;
     },
+
+    /** 临时与会记录 */
+    async recordAttendance(mid: string, uid: string) {
+        const meetingDoc = await MeetingModel.findById(mid);
+        if (!meetingDoc) throw new CustomError('会议不存在', 404);
+        const userDoc = await UserModel.findById(uid);
+        if (!userDoc) throw new CustomError('用户不存在', 404);
+        if (!userDoc.meetings.some(m => m._id.equals(mid))) {
+            userDoc.meetings.push(mid);
+            await userDoc.save();
+        }
+    },
 };
 
 export default userService;

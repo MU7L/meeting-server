@@ -13,7 +13,12 @@ export const WEB_PORT = Number(process.env.WEB_HOST) || 5173;
 // 数据库
 const DB_PORT = Number(process.env.DB_PORT) || 27017;
 const DB_DATABASE = process.env.DB_DATABASE || 'meeting';
-export const DB_URL = `mongodb://127.0.0.1:${DB_PORT}/${DB_DATABASE}`;
+const DB_USERNAME = process.env.DB_USERNAME;
+const DB_PASSWORD = process.env.DB_PASSWORD;
+export const DB_URL =
+    DB_USERNAME && DB_PASSWORD
+        ? `mongodb://${DB_USERNAME}:${DB_PASSWORD}@127.0.0.1:${DB_PORT}/${DB_DATABASE}`
+        : `mongodb://127.0.0.1:${DB_PORT}/${DB_DATABASE}`;
 
 // jwt
 export const JWT_SECRET = process.env.JWT_SECRET || '123456';

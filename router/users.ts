@@ -135,7 +135,6 @@ router.get(
     },
 );
 
-// TODO: 获取一个月内的会议
 router.get(
     '/:uid/meetings',
     jwtHandler,
