@@ -4,8 +4,9 @@ import jwt from 'jsonwebtoken';
 import { BCRYPT_SALT, JWT_SECRET } from '../config';
 import { MeetingModel, TeamModel, UserModel } from '../models';
 import logger from '../utils/logger';
-import { isDocument } from '@typegoose/typegoose';
+import { Ref } from '@typegoose/typegoose';
 import CustomError from '../utils/error';
+import Meeting from '../models/Meeting';
 
 const userService = {
     /** 登录 */
@@ -140,7 +141,7 @@ const userService = {
         if (!meetingDoc) throw new CustomError('会议不存在', 404);
         const userDoc = await UserModel.findById(uid);
         if (!userDoc) throw new CustomError('用户不存在', 404);
-        if (!userDoc.meetings.some(m => m._id.equals(mid))) {
+        if (!userDoc.meetings.some((m: Ref<Meeting>) => m._id.equals(mid))) {
             userDoc.meetings.push(mid);
             await userDoc.save();
         }
