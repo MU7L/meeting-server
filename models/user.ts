@@ -2,8 +2,8 @@ import { Types } from 'mongoose';
 
 import { prop, PropType, Ref } from '@typegoose/typegoose';
 
-import Meeting from './Meeting';
-import Team from './Team';
+import Meeting from './meeting';
+import Team from './team';
 
 export default class User {
     @prop({ required: true, type: String })

@@ -6,7 +6,7 @@ import jwtMiddleware from '../middleware/jwt';
 import meetingService from '../service/meeting';
 import CustomError from '../utils/error';
 import validationHandler from '../middleware/validator';
-import { AttendeeResponse } from '../models/Meeting';
+import { AttendeeResponse } from '../models/meeting';
 
 const router = Router();
 

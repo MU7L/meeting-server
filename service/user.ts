@@ -1,12 +1,12 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { Ref } from '@typegoose/typegoose';
 
 import { BCRYPT_SALT, JWT_SECRET } from '../config';
 import { MeetingModel, UserModel } from '../models';
 import logger from '../utils/logger';
-import { Ref } from '@typegoose/typegoose';
 import CustomError from '../utils/error';
-import Meeting from '../models/Meeting';
+import Meeting from '../models/meeting';
 
 const userService = {
     /** 登录 */

@@ -1,6 +1,6 @@
 import { isDocument } from '@typegoose/typegoose';
 import { TeamModel, UserModel } from '../models';
-import { MemberType } from '../models/Team';
+import { MemberType } from '../models/team';
 import CustomError from '../utils/error';
 
 const teamService = {

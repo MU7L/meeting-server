@@ -1,6 +1,6 @@
 import { MeetingModel, TeamModel, UserModel } from '../models';
-import { AttendeeResponse } from '../models/Meeting';
-import { MemberType } from '../models/Team';
+import { AttendeeResponse } from '../models/meeting';
+import { MemberType } from '../models/team';
 import CustomError from '../utils/error';
 
 const meetingService = {
