@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import { BCRYPT_SALT, JWT_SECRET } from '../config';
-import { MeetingModel, TeamModel, UserModel } from '../models';
+import { MeetingModel, UserModel } from '../models';
 import logger from '../utils/logger';
 import { Ref } from '@typegoose/typegoose';
 import CustomError from '../utils/error';

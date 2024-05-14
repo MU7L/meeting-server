@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "moduleResolution": "node",
         // TypeScript 编译目标版本
         "target": "es6",
         // 指定模块系统为CommonJS（适用于Node.js）
@@ -26,16 +27,7 @@
         "emitDecoratorMetadata": true
     },
     // 包含要编译的源代码目录
-    "include": [
-        "src/**/*",
-        "config.ts",
-        "router",
-        "service",
-        "utils",
-        "app.ts",
-        "models",
-        "middleware"
-    ],
+    "include": ["middleware", "models", "router", "service", "utils", "*.ts"],
     // 排除不需要编译的文件或目录
     "exclude": ["node_modules", "**/*.spec.ts", "**/__tests__/*"]
 }

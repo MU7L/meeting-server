@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { body, matchedData, param, query } from 'express-validator';
-import { Request as JWTRequest } from 'express-jwt';
 
 import jwtHandler from '../middleware/jwt';
 import validationHandler from '../middleware/validator';
