@@ -23,7 +23,7 @@ const teamService = {
             members: [
                 {
                     user: mentorId,
-                    status: MemberType.MENTOR,
+                    type: MemberType.MENTOR,
                 },
             ],
         });
@@ -75,6 +75,16 @@ const teamService = {
 
     /** 请求加入 */
     async join(tid: string, uid: string) {
+        const teamDoc = await TeamModel.findById(tid);
+        if (!teamDoc) throw new CustomError('课题组不存在', 404);
+        const member = teamDoc.members.find(member =>
+            member.user._id.equals(uid),
+        );
+        if (member) {
+            if (member.type === MemberType.NEW)
+                throw new CustomError('用户已申请加入课题组', 400);
+            else throw new CustomError('用户已加入课题组', 400);
+        }
         await TeamModel.findByIdAndUpdate(tid, {
             $push: { members: { user: uid, status: MemberType.NEW } },
         });
@@ -84,21 +94,20 @@ const teamService = {
     async addMember(tid: string, uid: string) {
         const userDoc = await UserModel.findById(uid);
         if (!userDoc) throw new CustomError('用户不存在', 404);
-        const teamDoc = await TeamModel.findByIdAndUpdate(
-            tid,
-            {
-                $set: {
-                    'members.$[member].status': MemberType.MEMBER,
-                },
-            },
-            {
-                arrayFilters: [{ 'member.user': uid }],
-            },
-        );
+        const teamDoc = await TeamModel.findById(tid);
         if (!teamDoc) throw new CustomError('课题组不存在', 404);
-        userDoc.teams.push(teamDoc.id);
-        await userDoc.save();
+        const userDocinTeam = teamDoc.members.find(member =>
+            member.user._id.equals(uid),
+        );
+        if (!userDocinTeam) throw new CustomError('无申请记录', 404);
+        // 更新课题组数据
+        if (userDocinTeam.type !== MemberType.NEW)
+            throw new CustomError('用户已加入课题组', 400);
+        userDocinTeam.type = MemberType.MEMBER;
         await teamDoc.save();
+        // 同步用户数据
+        userDoc.teams.push(teamDoc._id);
+        await userDoc.save();
     },
 };
 

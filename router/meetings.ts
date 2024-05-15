@@ -42,6 +42,7 @@ router.post(
             .then(data => {
                 res.send({
                     success: true,
+                    message: '预定成功',
                     data,
                 });
             })
