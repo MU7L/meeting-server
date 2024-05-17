@@ -3,5 +3,5 @@ node_modules
 .env
 logs/*
 .idea
-public/uploads/*
+public/*
 dist

@@ -1,6 +1,6 @@
 import cors from 'cors';
 import express, { Express } from 'express';
-import { createServer } from 'http';
+import { createServer } from 'https';
 import path from 'path';
 
 import { API_HOST, API_PORT, ENV } from './config';

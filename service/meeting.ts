@@ -35,9 +35,8 @@ const meetingService = {
             }).select('members');
             teamDocList.forEach(teamDoc => {
                 teamDoc.members.forEach(member => {
-                    if (member.type === MemberType.MEMBER) {
-                        attendeeIdSet.add(String(member.user._id));
-                    }
+                    if (member.type === MemberType.NEW) return;
+                    attendeeIdSet.add(String(member.user._id));
                 });
             });
         }
