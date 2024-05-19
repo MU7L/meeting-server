@@ -39,7 +39,7 @@ function setupSocket(httpServer: HttpServer) {
         SocketData
     >(httpServer, {
         cors: {
-            origin: `http://localhost:${WEB_PORT}`,
+            origin: '*',
         },
     });
 
@@ -87,6 +87,7 @@ function setupSocket(httpServer: HttpServer) {
             const sourceId = sidMapId.get(socket.id);
             if (!targetSid || !sourceId) return;
             io.to(targetSid).emit('offer', sourceId, sdp);
+            logger.debug(`${sourceId} offer to ${id}`);
         });
 
         // 转发answer
@@ -95,6 +96,7 @@ function setupSocket(httpServer: HttpServer) {
             const sourceId = sidMapId.get(socket.id);
             if (!targetSid || !sourceId) return;
             io.to(targetSid).emit('answer', sourceId, sdp);
+            logger.debug(`${sourceId} answer to ${id}`);
         });
 
         // 转发candidate

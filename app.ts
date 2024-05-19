@@ -1,6 +1,6 @@
 import cors from 'cors';
 import express, { Express } from 'express';
-import { createServer } from 'https';
+import { createServer } from 'http';
 import path from 'path';
 
 import { API_HOST, API_PORT, ENV } from './config';
@@ -14,6 +14,8 @@ import setupSocket from './utils/socket';
 logger.info(`env: ${ENV}`);
 
 const app = express();
+
+app.get('/ping', (_, res) => res.send('pong'));
 
 /** 启动服务 */
 async function setup(app: Express) {
@@ -34,5 +36,5 @@ async function setup(app: Express) {
 }
 
 setup(app)
-    .then(() => logger.info(`server started on http://${API_HOST}:${API_PORT}`))
+    .then(() => logger.info(`Server started on http://${API_HOST}:${API_PORT}`))
     .catch(err => logger.error(err));
