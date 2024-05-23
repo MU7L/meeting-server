@@ -1,6 +1,6 @@
-import { isDocument } from '@typegoose/typegoose';
+import { Ref, isDocument } from '@typegoose/typegoose';
 import { TeamModel, UserModel } from '../models';
-import { MemberType } from '../models/team';
+import Team, { Member, MemberType } from '../models/team';
 import CustomError from '../utils/error';
 
 const teamService = {
@@ -127,6 +127,26 @@ const teamService = {
                 ),
         );
         await TeamModel.findByIdAndDelete(tid);
+    },
+
+    /** 踢出成员 */
+    async removeMember(tid: string, uid: string, mentorId: string) {
+        const teamDoc = await TeamModel.findById(tid);
+        if (!teamDoc) throw new CustomError('课题组不存在', 404);
+        if (!teamDoc.mentor._id.equals(mentorId)) {
+            throw new CustomError('非课题组组长', 403);
+        }
+        const userDoc = await UserModel.findById(uid);
+        if (!userDoc) throw new CustomError('用户不存在', 404);
+        if (teamDoc.mentor._id.equals(uid)) {
+            throw new CustomError('不能移除课题组组长', 400);
+        }
+        await TeamModel.findByIdAndUpdate(tid, {
+            $pull: { members: { user: uid } },
+        });
+        await UserModel.findByIdAndUpdate(uid, {
+            $pull: { teams: tid },
+        });
     },
 };
 

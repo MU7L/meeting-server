@@ -105,18 +105,18 @@ router.post(
     param('tid').isMongoId().withMessage('团队ID格式错误'),
     body('uid').isMongoId().withMessage('用户ID格式错误'),
     validationHandler,
-    async (req: JWTRequest, res) => {
+    (req: JWTRequest, res, next) => {
         if (!req.auth) throw new Error('用户无权限', { cause: 401 });
         const { tid, uid } = matchedData(req);
-        try {
-            await teamService.addMember(tid, uid);
-            res.send({
-                success: true,
-                message: '已加入课题组',
-            });
-        } catch (err) {
-            throw err;
-        }
+        teamService
+            .addMember(tid, uid)
+            .then(() => {
+                res.send({
+                    success: true,
+                    message: '已加入课题组',
+                });
+            })
+            .catch(next);
     },
 );
 
@@ -126,19 +126,42 @@ router.delete(
     jwtHandler,
     param('tid').isMongoId().withMessage('团队ID格式错误'),
     validationHandler,
-    async (req: JWTRequest, res) => {
+    (req: JWTRequest, res, next) => {
         if (!req.auth) throw new Error('用户无权限', { cause: 401 });
         const uid = req.auth.id;
         const { tid } = matchedData(req);
-        try {
-            await teamService.delete(tid, uid);
-            res.send({
-                success: true,
-                message: '课题组已解散',
-            });
-        } catch (err) {
-            throw err;
-        }
+        teamService
+            .delete(tid, uid)
+            .then(() => {
+                res.send({
+                    success: true,
+                    message: '课题组已解散',
+                });
+            })
+            .catch(next);
+    },
+);
+
+// 踢出成员
+router.delete(
+    '/:tid/members/:uid',
+    jwtHandler,
+    param('tid').isMongoId().withMessage('团队ID格式错误'),
+    param('uid').isMongoId().withMessage('用户ID格式错误'),
+    validationHandler,
+    (req: JWTRequest, res, next) => {
+        if (!req.auth) throw new Error('用户无权限', { cause: 401 });
+        const mentorId = req.auth.id;
+        const { tid, uid } = matchedData(req);
+        teamService
+            .removeMember(tid, uid, mentorId)
+            .then(() => {
+                res.send({
+                    success: true,
+                    message: '已踢出成员',
+                });
+            })
+            .catch(next);
     },
 );
 
