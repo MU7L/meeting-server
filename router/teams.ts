@@ -120,4 +120,26 @@ router.post(
     },
 );
 
+// 解散课题组
+router.delete(
+    '/:tid',
+    jwtHandler,
+    param('tid').isMongoId().withMessage('团队ID格式错误'),
+    validationHandler,
+    async (req: JWTRequest, res) => {
+        if (!req.auth) throw new Error('用户无权限', { cause: 401 });
+        const uid = req.auth.id;
+        const { tid } = matchedData(req);
+        try {
+            await teamService.delete(tid, uid);
+            res.send({
+                success: true,
+                message: '课题组已解散',
+            });
+        } catch (err) {
+            throw err;
+        }
+    },
+);
+
 export default router;

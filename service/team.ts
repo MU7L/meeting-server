@@ -109,6 +109,25 @@ const teamService = {
         userDoc.teams.push(teamDoc._id);
         await userDoc.save();
     },
+
+    /** 解散 */
+    async delete(tid: string, uid: string) {
+        const teamDoc = await TeamModel.findById(tid);
+        if (!teamDoc) throw new CustomError('课题组不存在', 404);
+        if (!teamDoc.mentor._id.equals(uid)) {
+            throw new CustomError('非课题组组长', 403);
+        }
+        await Promise.all(
+            teamDoc.members
+                .filter(member => member.type !== MemberType.NEW)
+                .map(member =>
+                    UserModel.findByIdAndUpdate(member.user._id, {
+                        $pull: { teams: tid },
+                    }),
+                ),
+        );
+        await TeamModel.findByIdAndDelete(tid);
+    },
 };
 
 export default teamService;
