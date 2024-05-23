@@ -151,14 +151,14 @@ router.delete(
     validationHandler,
     (req: JWTRequest, res, next) => {
         if (!req.auth) throw new Error('用户无权限', { cause: 401 });
-        const mentorId = req.auth.id;
+        const opId = req.auth.id;
         const { tid, uid } = matchedData(req);
         teamService
-            .removeMember(tid, uid, mentorId)
+            .removeMember(tid, uid, opId)
             .then(() => {
                 res.send({
                     success: true,
-                    message: '已踢出成员',
+                    message: uid === opId ? '已退出课题组' : '已踢出成员',
                 });
             })
             .catch(next);

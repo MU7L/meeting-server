@@ -129,11 +129,11 @@ const teamService = {
         await TeamModel.findByIdAndDelete(tid);
     },
 
-    /** 踢出成员 */
-    async removeMember(tid: string, uid: string, mentorId: string) {
+    /** 踢出/退出成员 */
+    async removeMember(tid: string, uid: string, opId: string) {
         const teamDoc = await TeamModel.findById(tid);
         if (!teamDoc) throw new CustomError('课题组不存在', 404);
-        if (!teamDoc.mentor._id.equals(mentorId)) {
+        if (!teamDoc.mentor._id.equals(opId) && uid !== opId) {
             throw new CustomError('非课题组组长', 403);
         }
         const userDoc = await UserModel.findById(uid);
