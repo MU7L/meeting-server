@@ -15,7 +15,7 @@ export enum MemberType {
         timestamps: true,
     },
 })
-class Member {
+export class Member {
     @prop({ required: true, ref: () => User })
     user!: Ref<User>;
 
