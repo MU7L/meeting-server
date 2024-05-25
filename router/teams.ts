@@ -105,18 +105,63 @@ router.post(
     param('tid').isMongoId().withMessage('团队ID格式错误'),
     body('uid').isMongoId().withMessage('用户ID格式错误'),
     validationHandler,
-    async (req: JWTRequest, res) => {
+    (req: JWTRequest, res, next) => {
         if (!req.auth) throw new Error('用户无权限', { cause: 401 });
         const { tid, uid } = matchedData(req);
-        try {
-            await teamService.addMember(tid, uid);
-            res.send({
-                success: true,
-                message: '已加入课题组',
-            });
-        } catch (err) {
-            throw err;
-        }
+        teamService
+            .addMember(tid, uid)
+            .then(() => {
+                res.send({
+                    success: true,
+                    message: '已加入课题组',
+                });
+            })
+            .catch(next);
+    },
+);
+
+// 解散课题组
+router.delete(
+    '/:tid',
+    jwtHandler,
+    param('tid').isMongoId().withMessage('团队ID格式错误'),
+    validationHandler,
+    (req: JWTRequest, res, next) => {
+        if (!req.auth) throw new Error('用户无权限', { cause: 401 });
+        const uid = req.auth.id;
+        const { tid } = matchedData(req);
+        teamService
+            .delete(tid, uid)
+            .then(() => {
+                res.send({
+                    success: true,
+                    message: '课题组已解散',
+                });
+            })
+            .catch(next);
+    },
+);
+
+// 踢出成员
+router.delete(
+    '/:tid/members/:uid',
+    jwtHandler,
+    param('tid').isMongoId().withMessage('团队ID格式错误'),
+    param('uid').isMongoId().withMessage('用户ID格式错误'),
+    validationHandler,
+    (req: JWTRequest, res, next) => {
+        if (!req.auth) throw new Error('用户无权限', { cause: 401 });
+        const opId = req.auth.id;
+        const { tid, uid } = matchedData(req);
+        teamService
+            .removeMember(tid, uid, opId)
+            .then(() => {
+                res.send({
+                    success: true,
+                    message: uid === opId ? '已退出课题组' : '已踢出成员',
+                });
+            })
+            .catch(next);
     },
 );
 
